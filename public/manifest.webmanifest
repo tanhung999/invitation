@@ -1,0 +1,21 @@
+{
+  "name": "Thiệp cưới - Nguyễn Hồng Ngọc Ny & Ngô Tấn Hưng",
+  "short_name": "Thiệp cưới",
+  "description": "Thiệp cưới của Nguyễn Hồng Ngọc Ny & Ngô Tấn Hưng. Hôn lễ diễn ra vào ngày 07/12/2025.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFBF5",
+  "theme_color": "#D4758C",
+  "orientation": "portrait-primary",
+  "categories": ["lifestyle", "entertainment"],
+  "lang": "vi",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
