@@ -57,7 +57,7 @@ export const submitRSVPGoogleForm = async (data: RSVPData): Promise<RSVPResponse
   formData.append(fieldMap.note, data.note || '');
   
   try {
-    const response = await fetch(formAction, {
+    await fetch(formAction, {
       method: 'POST',
       body: formData,
       mode: 'no-cors' // Required for Google Forms
