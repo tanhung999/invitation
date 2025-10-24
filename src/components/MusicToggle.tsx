@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Play, Pause, Volume2, Music, Music2, Disc3 } from 'lucide-react';
+import { Music, Music2, Disc3 } from 'lucide-react';
 
 // Danh sách nhạc - thêm bài khác vào đây nếu có
 const audioTracks = [
@@ -77,8 +77,8 @@ const MusicToggle: React.FC = () => {
       nextTrack(); // Chuyển sang bài tiếp theo
     };
     
-    const handleError = (e: Event) => {
-      // console.error('Failed to load audio file:', e);
+    const handleError = () => {
+      // console.error('Failed to load audio file');
       setIsLoaded(false);
       setIsPlaying(false);
     };

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Heart, MessageCircle } from 'lucide-react';
-import { useForm } from 'react-hook-form';
+import { MessageCircle } from 'lucide-react';
 import inviteData from '../data/invite';
 import { t } from '../utils/i18n';
+import BlessingForm from './BlessingForm';
 
 interface Wish {
   id: string;
@@ -12,63 +12,43 @@ interface Wish {
   timestamp: string;
 }
 
-interface WishFormData {
-  name: string;
-  message: string;
-}
-
 const WishesWall: React.FC = () => {
   const [wishes, setWishes] = useState<Wish[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<WishFormData>();
 
   useEffect(() => {
     // Load wishes from localStorage
     const storedWishes = localStorage.getItem('wedding-wishes');
+    const storedBlessings = localStorage.getItem('wedding-blessings');
+    
+    let allWishes: Wish[] = [];
+    
     if (storedWishes) {
       try {
-        setWishes(JSON.parse(storedWishes));
+        allWishes = [...allWishes, ...JSON.parse(storedWishes)];
       } catch (error) {
         console.error('Failed to parse wishes:', error);
       }
     }
-  }, []);
-
-  const onSubmit = async (data: WishFormData) => {
-    setIsSubmitting(true);
-    setSubmitStatus('idle');
-
-    try {
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 600));
-
-      const newWish: Wish = {
-        id: Date.now().toString(),
-        name: data.name,
-        message: data.message,
-        timestamp: new Date().toISOString(),
-      };
-
-      const updatedWishes = [newWish, ...wishes];
-      setWishes(updatedWishes);
-      localStorage.setItem('wedding-wishes', JSON.stringify(updatedWishes));
-
-      setSubmitStatus('success');
-      reset();
-    } catch (error) {
-      setSubmitStatus('error');
-    } finally {
-      setIsSubmitting(false);
-      setTimeout(() => setSubmitStatus('idle'), 3000);
+    
+    if (storedBlessings) {
+      try {
+        const blessings = JSON.parse(storedBlessings);
+        const blessingWishes = blessings.map((blessing: any) => ({
+          id: blessing.id.toString(),
+          name: blessing.name,
+          message: blessing.message,
+          timestamp: blessing.submittedAt,
+        }));
+        allWishes = [...allWishes, ...blessingWishes];
+      } catch (error) {
+        console.error('Failed to parse blessings:', error);
+      }
     }
-  };
+    
+    // Sort by timestamp (newest first)
+    allWishes.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    setWishes(allWishes);
+  }, []);
 
   const formatDate = (timestamp: string) => {
     return new Date(timestamp).toLocaleDateString('vi-VN', {
@@ -109,7 +89,7 @@ const WishesWall: React.FC = () => {
         </motion.div>
 
         <div className="max-w-4xl mx-auto">
-          {/* Wish Form */}
+          {/* Blessing Form */}
           <motion.div
             className="mb-12"
             initial={{ opacity: 0, y: 50 }}
@@ -117,88 +97,7 @@ const WishesWall: React.FC = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <div className="bg-gradient-to-br from-brand-cream to-white rounded-3xl p-8 shadow-xl border border-brand-accent/20">
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
-                  {/* Name */}
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('wishes.name')} *
-                    </label>
-                    <input
-                      {...register('name', { required: 'Vui lòng nhập tên của bạn' })}
-                      type="text"
-                      id="name"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-primary focus:border-transparent transition-colors"
-                      placeholder={t('wishes.name_placeholder')}
-                    />
-                    {errors.name && (
-                      <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
-                    )}
-                  </div>
-
-                  {/* Message */}
-                  <div>
-                    <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('wishes.message')} *
-                    </label>
-                    <textarea
-                      {...register('message', { required: 'Vui lòng nhập lời chúc' })}
-                      id="message"
-                      rows={3}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-primary focus:border-transparent transition-colors resize-none"
-                      placeholder={t('wishes.message_placeholder')}
-                    />
-                    {errors.message && (
-                      <p className="mt-1 text-sm text-red-600">{errors.message.message}</p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Submit Button */}
-                <motion.button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-brand-primary hover:bg-brand-primary/90 disabled:bg-gray-400 text-white py-3 px-6 rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
-                  whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
-                  whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      {t('wishes.submitting')}
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-5 h-5" />
-                      {t('wishes.submit')}
-                    </>
-                  )}
-                </motion.button>
-
-                {/* Status Message */}
-                <AnimatePresence>
-                  {submitStatus !== 'idle' && (
-                    <motion.div
-                      className={`p-4 rounded-xl flex items-center gap-3 ${
-                        submitStatus === 'success'
-                          ? 'bg-green-50 text-green-800 border border-green-200'
-                          : 'bg-red-50 text-red-800 border border-red-200'
-                      }`}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <Heart className="w-5 h-5" />
-                      <span>
-                        {submitStatus === 'success' ? t('wishes.success') : t('wishes.error')}
-                      </span>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </form>
-            </div>
+            <BlessingForm />
           </motion.div>
 
           {/* Wishes Display */}

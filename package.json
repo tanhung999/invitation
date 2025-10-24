@@ -10,13 +10,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "dayjs": "^1.11.10",
     "framer-motion": "^10.16.4",
     "lucide-react": "^0.294.0",
-    "swiper": "^11.0.4",
+    "qrcode.react": "^4.2.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-hook-form": "^7.47.0",
-    "dayjs": "^1.11.10"
+    "react-router-dom": "^7.9.4",
+    "swiper": "^11.0.4"
   },
   "devDependencies": {
     "@types/react": "^18.2.37",

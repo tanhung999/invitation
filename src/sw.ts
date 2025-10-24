@@ -8,26 +8,26 @@ const STATIC_CACHE_URLS = [
 ];
 
 // Install event - cache static assets
-self.addEventListener('install', (event) => {
+self.addEventListener('install', (event: any) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => {
+      .then((cache: any) => {
         console.log('Caching static assets');
         return cache.addAll(STATIC_CACHE_URLS);
       })
-      .catch((error) => {
+      .catch((error: any) => {
         console.error('Failed to cache static assets:', error);
       })
   );
-  self.skipWaiting();
+  (self as any).skipWaiting();
 });
 
 // Activate event - clean up old caches
-self.addEventListener('activate', (event) => {
+self.addEventListener('activate', (event: any) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
+    caches.keys().then((cacheNames: string[]) => {
       return Promise.all(
-        cacheNames.map((cacheName) => {
+        cacheNames.map((cacheName: string) => {
           if (cacheName !== CACHE_NAME) {
             console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
@@ -36,11 +36,11 @@ self.addEventListener('activate', (event) => {
       );
     })
   );
-  self.clients.claim();
+  (self as any).clients.claim();
 });
 
 // Fetch event - serve from cache, fallback to network
-self.addEventListener('fetch', (event) => {
+self.addEventListener('fetch', (event: any) => {
   // Skip non-GET requests
   if (event.request.method !== 'GET') {
     return;
@@ -53,14 +53,14 @@ self.addEventListener('fetch', (event) => {
 
   event.respondWith(
     caches.match(event.request)
-      .then((cachedResponse) => {
+      .then((cachedResponse: Response | undefined) => {
         if (cachedResponse) {
           return cachedResponse;
         }
 
         // If not in cache, fetch from network
         return fetch(event.request)
-          .then((response) => {
+          .then((response: Response) => {
             // Don't cache non-successful responses
             if (!response || response.status !== 200 || response.type !== 'basic') {
               return response;
@@ -78,7 +78,7 @@ self.addEventListener('fetch', (event) => {
                 event.request.url.includes('.svg') ||
                 event.request.url.includes('.mp3')) {
               caches.open(CACHE_NAME)
-                .then((cache) => {
+                .then((cache: any) => {
                   cache.put(event.request, responseToCache);
                 });
             }
@@ -88,8 +88,9 @@ self.addEventListener('fetch', (event) => {
           .catch(() => {
             // Return offline page or fallback for navigation requests
             if (event.request.destination === 'document') {
-              return caches.match('/index.html');
+              return caches.match('/index.html') || new Response('Offline', { status: 503 });
             }
+            return new Response('Offline', { status: 503 });
           });
       })
   );

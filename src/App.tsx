@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Globe } from 'lucide-react';
+import { Globe, QrCode } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 // Components
 import LeafFall from './components/LeafFall';
@@ -54,6 +55,22 @@ function App() {
         <Globe className="w-5 h-5" />
         <span className="text-sm font-medium">{currentLang.toUpperCase()}</span>
       </motion.button>
+
+      {/* QR Generator Link */}
+      <motion.div
+        className="fixed top-6 left-6 z-50"
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ delay: 0.7 }}
+      >
+        <Link
+          to="/qr-generator"
+          className="bg-white/90 backdrop-blur-md text-brand-primary rounded-full p-3 shadow-xl hover:shadow-2xl hover:bg-white transition-all duration-300 flex items-center gap-2 border border-brand-accent/30"
+        >
+          <QrCode className="w-5 h-5" />
+          <span className="text-sm font-medium">QR Generator</span>
+        </Link>
+      </motion.div>
 
       {/* Main Content */}
       <main className="relative z-10">
